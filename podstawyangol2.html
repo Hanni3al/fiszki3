@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nauka Angielskiego</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #ffcccc; /* Różowy kolor tła strony */
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: #fff; /* Biała ramka wokół zawartości */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Cień ramki */
+            width: 400px;
+            margin: 20px auto; /* Wyśrodkowanie na stronie */
+        }
+        .question {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .input {
+            width: 80%; /* Zmniejszone pole do wpisywania */
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .submit-button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .result {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #28a745;
+        }
+        .result-incorrect {
+            color: #dc3545; /* Kolor czerwony przy błędnej odpowiedzi */
+        }
+        .play-again {
+            margin-top: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="question">
+            <p id="word">1. mama</p>
+        </div>
+        <input type="text" class="input" id="answer" placeholder="Wpisz tłumaczenie po angielsku" onkeyup="checkOnEnter(event)">
+        <button class="submit-button" onclick="checkAnswer()">Sprawdź</button>
+        <div class="result" id="result"></div>
+        <div class="play-again" id="play-again" style="display: none;">Chcesz zagrać jeszcze raz?</div>
+    </div>
+
+    <script>
+        let words = [
+            { word: "1. mama", correctAnswer: "mom" },
+            { word: "2. i", correctAnswer: "and" },
+            { word: "3. jabłko", correctAnswer: "apple" },
+            { word: "4. chleb", correctAnswer: "bread" },
+            { word: "5. kot", correctAnswer: "cat" },
+            { word: "6. pies", correctAnswer: "dog" },
+            { word: "7. Ja mam", correctAnswer: "I have" },
+            { word: "8. Ty masz", correctAnswer: "You have" },
+            { word: "9. Ona ma", correctAnswer: "She has" },
+            { word: "10. On je", correctAnswer: "He eats" },
+            { word: "11. My jemy", correctAnswer: "We eat" },
+            { word: "12. Ja czytam", correctAnswer: "I read" },
+            { word: "13. Ona czyta", correctAnswer: "She reads" },
+            { word: "14. Ty czytasz", correctAnswer: "You read" },
+            { word: "15. Śniadanie", correctAnswer: "Breakfast" },
+            { word: "16. Jedzenie", correctAnswer: "Food" },
+            { word: "17. Mięso", correctAnswer: "Meat" },
+            { word: "18. Truskawka", correctAnswer: "Strawberry" },
+            { word: "19. Obiad", correctAnswer: "Lunch" },
+            { word: "20. Córka", correctAnswer: "Daughter" },
+            { word: "21. Syn", correctAnswer: "Son" },
+            { word: "22. Jajka", correctAnswer: "Eggs" },
+            { word: "23. Ona", correctAnswer: "She" },
+            { word: "24. On", correctAnswer: "He" },
+            { word: "25. My", correctAnswer: "We" },
+            { word: "26. Wy", correctAnswer: "You" },
+            // Dodaj pozostałe słowa w tej samej formie.
+        ];
+
+        let currentWordIndex = 0;
+        let gameOver = false;
+        let wrongAnswers = [];
+
+        function nextWord() {
+            if (gameOver) {
+                return;
+            }
+
+            const wordElement = document.getElementById("word");
+            const resultElement = document.getElementById("result");
+            const answerElement = document.getElementById("answer");
+
+            if (currentWordIndex < words.length) {
+                const currentWord = words[currentWordIndex];
+                wordElement.textContent = currentWord.word;
+                resultElement.textContent = "";
+                answerElement.value = ""; // Wyczyść pole tekstowe
+
+                answerElement.disabled = false; // Włącz pole tekstowe
+                answerElement.focus(); // Skoncentruj kursor na polu tekstowym
+
+                wordElement.classList.remove("result-incorrect");
+            } else {
+                wordElement.textContent = "Koniec gry!";
+                resultElement.textContent = "";
+                answerElement.style.display = "none";
+
+                const playAgainElement = document.getElementById("play-again");
+                playAgainElement.style.display = "block";
+                playAgainElement.onclick = () => resetGame();
+            }
+        }
+
+        function checkAnswer() {
+            if (gameOver) {
+                return;
+            }
+
+            const resultElement = document.getElementById("result");
+            const answerElement = document.getElementById("answer");
+
+            const currentWord = words[currentWordIndex];
+            const userAnswer = answerElement.value.trim().toLowerCase();
+
+            if (userAnswer === currentWord.correctAnswer) {
+                resultElement.innerText = "Poprawna odpowiedź!";
+                resultElement.classList.remove("result-incorrect");
+            } else {
+                resultElement.innerText = "Błędna odpowiedź. Poprawna odpowiedź to: " + currentWord.correctAnswer;
+                resultElement.classList.add("result-incorrect");
+                wrongAnswers.push(currentWord); // Dodaj błędną odpowiedź do puli
+            }
+
+            answerElement.disabled = true; // Wyłącz pole tekstowe po udzieleniu odpowiedzi
+            currentWordIndex++;
+            setTimeout(nextWord, 1500); // Przełącz na kolejne słowo po 1,5 sekundy.
+        }
+
+        function resetGame() {
+            if (wrongAnswers.length > 0) {
+                words = words.concat(wrongAnswers); // Dodaj błędne odpowiedzi z powrotem do puli
+                wrongAnswers = [];
+            }
+
+            currentWordIndex = 0;
+            gameOver = false;
+            document.getElementById("play-again").style.display = "none";
+            const answerElement = document.getElementById("answer");
+            answerElement.style.display = "block";
+            nextWord();
+        }
+
+        function checkOnEnter(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        }
+
+        nextWord();
+    </script>
+</body>
+</html>
